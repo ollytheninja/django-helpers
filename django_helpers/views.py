@@ -4,14 +4,13 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
-from django.views.generic import ListView, CreateView, UpdateView, TemplateView
-
+from django.views.generic import ListView, CreateView, UpdateView
 
 from .models import OwnerMixin, OwnerChildMixin
 
 
 def authable_model(model):
-    return (issubclass(model, OwnerMixin) or issubclass(model, OwnerChildMixin))
+    return issubclass(model, OwnerMixin) or issubclass(model, OwnerChildMixin)
 
 
 class Authzable:
@@ -21,7 +20,8 @@ class Authzable:
         if self.model and authable_model(self.model):
             super(Authzable, self).__init__(*args, **kwargs)
         else:
-            raise NotImplementedError("Can't require access on a model that doesn't subclass OwnerMixin or OwnerChildMixin")
+            raise NotImplementedError(
+                "Can't require access on a model that doesn't subclass OwnerMixin or OwnerChildMixin")
 
 
 class AuthzCreateView(Authzable, LoginRequiredMixin, CreateView):
@@ -48,7 +48,6 @@ class AuthzListView(Authzable, LoginRequiredMixin, ListView):
         # if self.request.user.is_staff:
         #     return queryset
 
-
         user = self.request.user
 
         parent_chain = []
@@ -62,7 +61,7 @@ class AuthzListView(Authzable, LoginRequiredMixin, ListView):
             else:
                 break
 
-        kwarg = {"__".join(parent_chain) + "__owner": user}
+        kwarg = {"__".join(parent_chain + ["owner"]): user}
         queryset = queryset.filter(**kwarg)
         return queryset
 
