@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="django-helpers",
-    version="0.0.2",
+    version="0.0.3",
     author="Oliver Ewert",
     author_email="oliver@ewert.co.nz",
     description="A collection of Mixins and helpers I find useful for Django dev",
