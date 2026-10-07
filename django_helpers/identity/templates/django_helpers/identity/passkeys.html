@@ -1,0 +1,89 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% trans "Manage passkeys" %}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; min-height: 100vh; background: #f5f5f5; padding: 1rem; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; }
+        h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
+        .subtitle { color: #666; margin-bottom: 1.5rem; }
+        .error { background: #fee; color: #c00; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem; }
+        .passkeys-list { list-style: none; padding: 0; margin: 0; }
+        .passkey-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem; border: 1px solid #eee; border-radius: 4px; margin-bottom: 0.75rem; }
+        .passkey-item:last-child { margin-bottom: 0; }
+        .passkey-info { flex: 1; min-width: 0; }
+        .passkey-name { font-weight: 500; }
+        .passkey-meta { font-size: 0.875rem; color: #666; margin-top: 0.25rem; }
+        .btn-danger { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; font-size: 0.875rem; cursor: pointer; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-danger:focus { outline: none; box-shadow: 0 0 0 3px rgba(220,53,69,0.4); }
+        .btn-primary { background: #0066cc; color: white; border: none; border-radius: 4px; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 500; cursor: pointer; margin-top: 1.5rem; }
+        .btn-primary:hover { background: #0052a3; }
+        .btn-primary:focus { outline: none; box-shadow: 0 0 0 3px rgba(0,102,204,0.4); }
+        .empty { text-align: center; color: #666; padding: 2rem; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main class="card" role="main">
+            <h1>{% trans "Passkeys" %}</h1>
+            <p class="subtitle">{% trans "Manage your passkeys for passwordless sign-in" %}</p>
+
+            {% if error %}
+            <div class="error" role="alert">{{ error }}</div>
+            {% endif %}
+
+            {% if passkeys %}
+            <ul class="passkeys-list" aria-label="{% trans "Your passkeys" %}">
+                {% for passkey in passkeys %}
+                <li class="passkey-item">
+                    <div class="passkey-info">
+                        <div class="passkey-name">{{ passkey.name|default:"Unnamed passkey" }}</div>
+                        <div class="passkey-meta">
+                            {% if passkey.created_at %}{{ passkey.created_at|date:"M j, Y" }}{% endif %}
+                            {% if passkey.last_used_at %} · {% trans "Last used" %} {{ passkey.last_used_at|date:"M j, Y" }}{% endif %}
+                        </div>
+                    </div>
+                    <form method="post" action="{% url 'identity:passkey_delete' passkey.id %}" onsubmit="return confirm('{% trans "Delete this passkey?" %}')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger" aria-label="{% trans "Delete" %} {{ passkey.name|default:"passkey" }}">{% trans "Delete" %}</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty">{% trans "No passkeys registered yet." %}</p>
+            {% endif %}
+
+            {% if passkey_enabled %}
+            <form id="passkey-register-form" onsubmit="return false">
+                {% csrf_token %}
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label for="id_passkey_name">{% trans "Passkey name" %}</label>
+                    <input type="text" name="name" id="id_passkey_name" placeholder="{% trans "e.g. iPhone, Windows Hello" %}" required>
+                </div>
+                <button type="button" class="btn-primary" id="passkey-register-btn"
+                        data-options-url="{% url 'identity:passkey_register_options' %}"
+                        data-verify-url="{% url 'identity:passkey_register_verify' %}">{% trans "Add a passkey" %}</button>
+            </form>
+            <p id="passkey-error" class="error" role="alert" hidden></p>
+            {% endif %}
+
+            <form method="post" action="{% url 'identity:email_change' %}">
+                {% csrf_token %}
+                <label for="id_new_email">{% trans "Change email address" %}</label>
+                <input type="email" name="email" id="id_new_email" required autocomplete="email">
+                <button type="submit" class="btn-primary">{% trans "Send verification code" %}</button>
+            </form>
+        </main>
+    </div>
+
+    <script src="{% static 'django_helpers/identity/passkeys.js' %}" defer></script>
+</body>
+</html>

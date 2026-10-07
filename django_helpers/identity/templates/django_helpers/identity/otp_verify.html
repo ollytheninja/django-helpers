@@ -1,0 +1,50 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% trans "Verify code" %}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f5f5f5; padding: 1rem; }
+        .card { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 2rem; width: 100%; max-width: 400px; }
+        h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
+        .subtitle { color: #666; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        input[type="text"] { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 1.5rem; letter-spacing: 0.5rem; text-align: center; }
+        input[type="text"]:focus { outline: none; border-color: #0066cc; box-shadow: 0 0 0 3px rgba(0,102,204,0.2); }
+        button { width: 100%; padding: 0.75rem; background: #0066cc; color: white; border: none; border-radius: 4px; font-size: 1rem; font-weight: 500; cursor: pointer; }
+        button:hover { background: #0052a3; }
+        button:focus { outline: none; box-shadow: 0 0 0 3px rgba(0,102,204,0.4); }
+        .error { background: #fee; color: #c00; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.875rem; }
+        .resend { margin-top: 1rem; text-align: center; font-size: 0.875rem; }
+        .resend a { color: #0066cc; text-decoration: none; }
+        .resend a:hover { text-decoration: underline; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    </style>
+</head>
+<body>
+    <main class="card" role="main">
+        <h1>{% trans "Enter sign-in code" %}</h1>
+        <p class="subtitle">{% trans "We sent a 6-digit code to" %} <strong>{{ email }}</strong></p>
+
+        {% if error %}
+        <div class="error" role="alert">{{ error }}</div>
+        {% endif %}
+
+        <form method="post" action="{% url 'identity:otp_verify' %}" novalidate>
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_code">{% trans "Code" %}</label>
+                <input type="text" name="code" id="id_code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus aria-describedby="code-help">
+                <span id="code-help" class="sr-only">{% trans "Enter the 6-digit code from the email" %}</span>
+            </div>
+            <button type="submit">{% trans "Sign in" %}</button>
+        </form>
+
+        <p class="resend"><a href="{% url 'identity:login' %}">{% trans "Request another code" %}</a></p>
+    </main>
+</body>
+</html>
