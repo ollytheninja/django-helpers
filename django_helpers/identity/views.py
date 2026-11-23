@@ -113,7 +113,7 @@ def otp_verify_view(request):
                     "django.contrib.auth.backends.ModelBackend",
                 ),
             )
-    except (AmbiguousEmailError, SignupClosedError, ValueError, IntegrityError):
+    except AmbiguousEmailError, SignupClosedError, ValueError, IntegrityError:
         logger.warning("Verified email could not be bound to an account", exc_info=True)
         context["error"] = "This email cannot be used automatically. Contact support."
         return render(request, "django_helpers/identity/otp_verify.html", context)
@@ -138,7 +138,7 @@ def email_change_view(request):
             user=request.user,
             next_path=reverse("identity:passkeys"),
         )
-    except (ValidationError, EmailOTPRateLimitError):
+    except ValidationError, EmailOTPRateLimitError:
         return render(
             request,
             "django_helpers/identity/passkeys.html",

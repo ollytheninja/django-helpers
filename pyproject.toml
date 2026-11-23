@@ -8,12 +8,12 @@ version = "0.1.0"
 description = "Reusable, deliberately small building blocks for Django projects"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 authors = [
     { name = "Olly Ewert", email = "olly@teapot.nz" },
 ]
 dependencies = [
-    "django>=5.1",
+    "django>=6.0",
 ]
 
 classifiers = [
@@ -44,7 +44,7 @@ addopts = "--strict-markers"
 
 [tool.ruff]
 line-length = 100
-target-version = "py312"
+target-version = "py315"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "DJ"]

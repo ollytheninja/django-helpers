@@ -130,7 +130,7 @@ def consume_email_otp(request, code: str) -> EmailOTPChallenge | None:
         return None
     try:
         challenge = EmailOTPChallenge.objects.select_for_update().get(pk=challenge_id)
-    except (EmailOTPChallenge.DoesNotExist, TypeError, ValueError):
+    except EmailOTPChallenge.DoesNotExist, TypeError, ValueError:
         return None
     now = timezone.now()
     max_attempts = _setting("EMAIL_OTP_MAX_ATTEMPTS", 5)
